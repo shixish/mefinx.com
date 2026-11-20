@@ -1,0 +1,173 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+
+/*
+	The mefinx brand, mirroring the app's styles.css. The site is dark-only, like the app.
+	The three brand colours are the logo's strands (cyan, magenta, amber). The entity colours
+	are the graph's: people blue, places amber, events green.
+*/
+@theme {
+	--font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+
+	--color-bg: #07080a;
+	--color-surface: #0f1115;
+	--color-surface-raised: #161920;
+	--color-text: #f4f5f7;
+	--color-muted: #9aa1ad;
+	--color-faint: #6b7280;
+	--color-line: rgb(255 255 255 / 0.08);
+	--color-line-strong: rgb(255 255 255 / 0.16);
+
+	--color-brand: #59bfe0;
+	--color-brand-soft: #8fd4ea;
+	--color-accent: #df4c95;
+	--color-amber: #fad34a;
+
+	--color-person: #3b82f6;
+	--color-place: #f59e0b;
+	--color-event: #10b981;
+
+	--text-display: clamp(2.75rem, 1.6rem + 4.6vw, 5rem);
+	--text-section: clamp(2rem, 1.5rem + 2vw, 2.75rem);
+
+	--tracking-display: -0.045em;
+	--tracking-section: -0.03em;
+
+	--shadow-window: 0 40px 80px -30px rgb(0 0 0 / 0.9);
+
+	--animate-float: float 9s ease-in-out infinite;
+
+	@keyframes float {
+		0%,
+		100% {
+			transform: translateY(0);
+		}
+		50% {
+			transform: translateY(-10px);
+		}
+	}
+}
+
+@utility bg-gradient-brand {
+	background-image: linear-gradient(120deg, var(--color-brand), var(--color-accent));
+}
+
+@utility bg-gradient-spectrum {
+	background-image: linear-gradient(
+		120deg,
+		var(--color-brand) 0%,
+		var(--color-accent) 55%,
+		var(--color-amber) 100%
+	);
+}
+
+/* Gradient-filled text. Pair with a bg-gradient-* utility. */
+@utility text-gradient {
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	color: transparent;
+}
+
+@utility text-gradient-headline {
+	background-image: linear-gradient(180deg, #ffffff 20%, #b8c0cc 100%);
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	color: transparent;
+}
+
+@layer base {
+	:root {
+		color-scheme: dark;
+	}
+
+	html {
+		scroll-behavior: smooth;
+		scroll-padding-top: 80px;
+	}
+
+	body {
+		@apply min-h-screen overflow-x-hidden bg-bg font-sans leading-relaxed text-text antialiased;
+		background-image:
+			radial-gradient(60rem 40rem at 15% -10%, rgb(89 191 224 / 0.12), transparent 60%),
+			radial-gradient(50rem 36rem at 90% 0%, rgb(223 76 149 / 0.1), transparent 60%);
+		background-repeat: no-repeat;
+	}
+
+	::selection {
+		background: rgb(89 191 224 / 0.35);
+	}
+
+	:focus-visible {
+		outline: 2px solid var(--color-brand);
+		outline-offset: 3px;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		html {
+			scroll-behavior: auto;
+		}
+
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			transition-duration: 0.01ms !important;
+		}
+	}
+}
+
+@layer components {
+	.btn {
+		@apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-2 text-sm font-semibold transition hover:-translate-y-px active:translate-y-0;
+	}
+
+	.btn-lg {
+		@apply px-[1.6rem] py-[0.85rem] text-base;
+	}
+
+	.btn-primary {
+		@apply bg-gradient-brand text-bg shadow-[0_10px_30px_-10px_rgb(223_76_149/0.6)] hover:shadow-[0_14px_40px_-10px_rgb(89_191_224/0.7)];
+	}
+
+	.btn-secondary {
+		@apply border border-line-strong bg-white/4 text-text backdrop-blur-sm hover:border-white/30 hover:bg-white/8;
+	}
+
+	.eyebrow {
+		@apply mb-4 inline-block bg-gradient-spectrum text-gradient text-xs font-bold tracking-[0.14em] uppercase;
+	}
+
+	.section-headline {
+		@apply text-section leading-tight font-extrabold tracking-section;
+	}
+
+	.section-subheadline {
+		@apply mt-4 text-lg text-muted;
+	}
+}
+
+/* Reveal-on-scroll, driven by the reveal attachment. Content stays visible without JS. */
+.js [data-reveal] {
+	opacity: 0;
+	transform: translateY(16px);
+	transition:
+		opacity 600ms ease,
+		transform 600ms cubic-bezier(0.2, 0.7, 0.2, 1);
+	transition-delay: calc(var(--reveal-index, 0) * 90ms);
+}
+
+.js [data-reveal].is-visible {
+	opacity: 1;
+	transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.js [data-reveal] {
+		opacity: 1;
+		transform: none;
+		transition: none;
+	}
+}

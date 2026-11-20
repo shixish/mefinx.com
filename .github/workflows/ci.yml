@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    env:
+      # Lets the deploy step skip, instead of failing, until the secrets below are added.
+      HAS_CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+    concurrency:
+      group: ci-${{ github.ref }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Format
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm check
+
+      - name: Build
+        run: pnpm build
+
+      # This repo and its Actions logs are public. Secrets reach only this step, only on a push to
+      # main, and are passed as env vars that wrangler reads itself. On an auth error wrangler can
+      # print the account name, which Cloudflare builds from the owner's email, so every line of
+      # its output has email addresses redacted.
+      - name: Deploy
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && env.HAS_CLOUDFLARE_TOKEN == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -o pipefail
+          pnpm exec wrangler deploy 2>&1 | sed -E 's/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/[email redacted]/g'
+
+      - name: Deploy skipped
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && env.HAS_CLOUDFLARE_TOKEN != 'true'
+        run: echo "::notice::Not deployed; CLOUDFLARE_API_TOKEN is not set in this repo's Actions secrets."

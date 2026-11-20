@@ -1,0 +1,22 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "mefinx-com",
+	"main": "./worker/index.ts",
+	"compatibility_date": "2026-11-01",
+	"assets": {
+		"directory": "./build",
+		"binding": "ASSETS",
+		"not_found_handling": "404-page",
+		"html_handling": "drop-trailing-slash",
+		"run_worker_first": true
+	},
+	// Served only on mefinx.com; www redirects there (see worker/index.ts). These domains are
+	// still attached to the old EmDash Worker (mefinx-site) until that one is deleted, and a
+	// deploy fails rather than taking them over while it exists.
+	"routes": [
+		{ "pattern": "mefinx.com", "custom_domain": true },
+		{ "pattern": "www.mefinx.com", "custom_domain": true }
+	],
+	"workers_dev": false,
+	"preview_urls": false
+}
