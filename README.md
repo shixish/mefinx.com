@@ -44,8 +44,9 @@ CI builds every push and pull request. Pushes to `main` deploy with `wrangler de
 has `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` Actions secrets; until then the deploy step
 is skipped.
 
-The Worker is named `mefinx-com` and claims `mefinx.com` and `www.mefinx.com` as custom domains.
-Those are still attached to the old EmDash Worker (`mefinx-site`), and a deploy fails rather than
-taking them over. To cut over, delete that Worker in the Cloudflare dashboard (or run
-`pnpm exec wrangler delete --name mefinx-site`), then deploy this one. The old Worker's D1
-database, R2 bucket and KV namespace are left behind and can be deleted separately.
+`pnpm deploy` builds and deploys from a local machine logged in with `wrangler login`.
+
+The Worker is named `mefinx-com` and owns `mefinx.com` and `www.mefinx.com` as custom domains.
+The old EmDash Worker (`mefinx-site`) still exists with no domains attached, and its repo's CI is
+disabled so it can't take them back. It, and its D1 database, R2 bucket and KV namespace, can be
+deleted once nothing there is needed.
